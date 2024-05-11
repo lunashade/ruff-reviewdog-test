@@ -1,0 +1,41 @@
+
+---
+name: Reviewdog
+on: [pull_request]
+permissions:
+  pull-requests: write
+jobs:
+  python_check:
+    strategy:
+      matrix:
+        workdir:
+          - .
+    name: python_check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
+      - run: pip install poetry==1.4.0
+      - run: poetry install ruff==0.4.4
+
+      - name: ruff check
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.github_token }}
+        run: |
+          poetry run ruff check . | reviewdog -efm="%f:%l:%c: %m" -name=ruff-check -reporter=github-pr-review -fail-on-error=true -filter-mode=nofilter
+        working-directory: ${{ matrix.workdir }}
+
+      - name: ruff format
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.github_token }}
+        run: |
+          poetry run ruff format --diff --check . | reviewdog -f=diff -name=ruff-format -reporter=github-pr-review
+        working-directory: ${{ matrix.workdir }}
+

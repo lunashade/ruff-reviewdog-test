@@ -2,3 +2,19 @@
 line-length = 119
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "W", "F", "D"]
+
+[tool.poetry]
+name = "ruff-test"
+version = "0.1.0"
+description = ""
+authors = ["lunashade <word47wonders@gmail.com>"]
+readme = "README.md"
+packages = [{include = "ruff_test"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ruff = "^0.4.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
