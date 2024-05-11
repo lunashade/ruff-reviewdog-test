@@ -1,7 +1,7 @@
 
 ---
 name: Reviewdog
-on: [pull_request]
+on: [pull_request, push]
 permissions:
   pull-requests: write
 jobs:
@@ -22,20 +22,19 @@ jobs:
         with:
           reviewdog_version: latest
 
-      - run: pip install poetry==1.4.0
-      - run: poetry install ruff==0.4.4
+      - run: pip install ruff==0.4.4
 
       - name: ruff check
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.github_token }}
         run: |
-          poetry run ruff check . | reviewdog -efm="%f:%l:%c: %m" -name=ruff-check -reporter=github-pr-review -fail-on-error=true -filter-mode=nofilter
+          ruff check . | reviewdog -efm="%f:%l:%c: %m" -name=ruff-check -reporter=github-pr-review -fail-on-error=true -filter-mode=nofilter
         working-directory: ${{ matrix.workdir }}
 
       - name: ruff format
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.github_token }}
         run: |
-          poetry run ruff format --diff --check . | reviewdog -f=diff -name=ruff-format -reporter=github-pr-review
+          ruff format --diff --check . | reviewdog -f=diff -name=ruff-format -reporter=github-pr-review
         working-directory: ${{ matrix.workdir }}
 
